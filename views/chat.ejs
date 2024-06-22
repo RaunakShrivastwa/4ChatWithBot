@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+
+    <title>Chat Now</title>
+</head>
+
+<body>
+    <div class="container-fluied  m-auto">
+        <div class="row">
+            <div class="">
+                <section id="screen" class="bg-primary mb-4" style="height: 80vh;overflow-y: auto;">
+
+                </section>
+            </div>
+
+        </div>
+        <div class="col-md-12 col-sm-12 row container">
+            <div class="col-md-11">
+                <input class="form-control shadow p-3" type="text" placeholder="Enter Message" id="inputMessage">
+            </div>
+            <div class="col-md-1">
+                <button class="btn btn-primary mt-3" id="send">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="http://localhost:4000/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io.connect('http://localhost:4000');
+        const inputMessage = document.getElementById('inputMessage');
+        const messageList = document.getElementById('screen');
+        const sendButton = document.getElementById('send');
+
+        sendButton.addEventListener('click', () => {
+    const msg = inputMessage.value.trim();
+    if (msg) {
+        // Create message container for user's message
+        const userMessageElement = document.createElement("div");
+        userMessageElement.style.textAlign = 'right'; // Aligns text to the left
+        userMessageElement.style.padding = '10px';
+        userMessageElement.style.marginBottom = '10px'; // Add space between messages
+        const userMessageText = document.createElement("span");
+        userMessageText.textContent = `You: ${msg}`;
+        userMessageText.style.backgroundColor = 'magenta'; // Light green similar to WhatsApp
+        userMessageText.style.borderRadius = '10px';
+        userMessageText.style.padding = '8px 12px';
+        userMessageText.style.maxWidth = 'fit-content'; // Adjust width to fit content
+        userMessageText.style.display = 'inline-block'; // Display as inline block to fit width
+        userMessageText.style.fontSize = '16px';
+        userMessageText.style.color = '#000'; // Black text color
+        userMessageElement.appendChild(userMessageText);
+        messageList.appendChild(userMessageElement);
+
+        // Emit user's message to server
+        socket.emit('new_message', msg);
+
+        // Clear input field
+        inputMessage.value = '';
+    }
+});
+
+socket.on('bot-msg', (data) => {
+    // Create message container for bot's message
+    const botMessageElement = document.createElement("div");
+    botMessageElement.style.textAlign = 'left'; // Aligns text to the right
+    botMessageElement.style.marginBottom = '10px'; // Add space between messages
+    botMessageElement.style.padding = '10px';
+    const botMessageText = document.createElement("span");
+    botMessageText.textContent = `${data.name}: ${data.text}`;
+    botMessageText.style.backgroundColor = '#e0e0e0'; // Light gray for bot's message
+    botMessageText.style.borderRadius = '10px';
+    botMessageText.style.padding = '8px 12px';
+    botMessageText.style.maxWidth = 'fit-content'; // Adjust width to fit content
+    botMessageText.style.display = 'inline-block'; // Display as inline block to fit width
+    botMessageText.style.fontSize = '16px';
+    botMessageText.style.color = '#000'; // Black text color
+    botMessageElement.appendChild(botMessageText);
+    messageList.appendChild(botMessageElement);
+});
+
+
+        // Clear previous event listeners before reattaching
+        if (sendButton._listeners && sendButton._listeners.click) {
+            sendButton.removeEventListener('click', sendButtonClickHandler);
+        }
+    </script>
+
+</body>
+
+</html>
