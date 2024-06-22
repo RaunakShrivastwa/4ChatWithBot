@@ -12,7 +12,7 @@ app.set('views', './views')
 const botToken = "6810179173:AAEPIruORLBjC3U8x3ufuz9TfTaVXbETh2s";
 const bot = new Telegram(botToken, { polling: true });
 const server = http.createServer(app);
-const PORT = 4000;
+const PORT = process.env.PORT || 4000;
 
 bot.onText(/\/start/, (msg) => {
     bot.sendMessage(msg.chat.id, "Welcome To Chat Bot, Lets chat👸👱‍♂️");
